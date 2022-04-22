@@ -111,7 +111,7 @@ public class PostController {
     public ResponseEntity<?> deleteAllPosts(@PathVariable)
 
 
-    @PostMapping("/")
+    @PostMapping("//")
     public ResponseEntity<?> createPost(@RequestBody Post newPost){
         try{
             ValidationError errors = PostValidation.validatePost(newPost, postRepository, false);
