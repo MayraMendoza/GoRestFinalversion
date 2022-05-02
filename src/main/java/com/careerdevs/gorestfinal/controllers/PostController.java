@@ -56,7 +56,7 @@ public class PostController {
             if(ApiErrorHandling.isStrNan(id)){
                 throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, id +": is not a valid id");
             }
-            long uID = Integer.parseInt(id);
+            long uID = Long.parseLong(id);
 
             //instead of it returning null
             Optional<Post> foundPost = postRepository.findById(uID);
@@ -96,7 +96,7 @@ public class PostController {
             if(ApiErrorHandling.isStrNan(postId)){ // checks if string is a number and if its null . if its not a number or null it will return true and throw exception.
                 throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, postId + ": is not valid");
             }
-            long uID = Integer.parseInt(postId);
+            long uID = Long.parseLong(postId);
             Optional<Post> deletePost = postRepository.findById(uID);
 
             if (deletePost.isEmpty()){
@@ -139,7 +139,7 @@ public class PostController {
 
             }
 
-            long uID = Integer.parseInt(postId);
+            long uID = Long.parseLong(postId);
 
             String url = "https://gorest.co.in/public/v2/posts/" + uID;
             Post foundPost = restTemplate.getForObject(url, Post.class);
@@ -147,7 +147,7 @@ public class PostController {
             System.out.println(foundPost);
 
             if (foundPost == null) {
-                throw new HttpClientErrorException(HttpStatus.NOT_FOUND, "user data was null");
+                throw new HttpClientErrorException(HttpStatus.NOT_FOUND, " post data was null");
 
             }
             // update post / SAVE POST
@@ -180,8 +180,8 @@ public class PostController {
 
             ArrayList<Post> allPosts = new ArrayList<>(Arrays.asList(firstPagePost));
 
-            HttpHeaders resposeHeader = response.getHeaders();
-            String totalPages = Objects.requireNonNull(resposeHeader.get("X-Pagination-Pages").get(0));
+            HttpHeaders responseHeader = response.getHeaders();
+            String totalPages = Objects.requireNonNull(responseHeader.get("X-Pagination-Pages").get(0));
 
             int totalPgNum =Integer.parseInt(totalPages);
 
