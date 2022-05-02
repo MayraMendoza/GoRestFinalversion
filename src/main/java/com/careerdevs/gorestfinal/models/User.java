@@ -1,31 +1,19 @@
 package com.careerdevs.gorestfinal.models;
-
-
 import javax.persistence.*;
 
 @Entity
-public class Comment {
-
+public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
-
-
-
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private long post_id;
-
     private String name;
     private String email;
-    private String body;
+    private String gender;
+    private String status;
 
     public long getId() {
         return id;
-    }
-
-    public long getPost_id() {
-        return post_id;
     }
 
     public String getName() {
@@ -36,18 +24,23 @@ public class Comment {
         return email;
     }
 
-    public String getBody() {
-        return body;
+    public String getGender() {
+        return gender;
+    }
+
+    public String getStatus() {
+        return status;
     }
 
     @Override
     public String toString() {
-        return "Comment{" +
+        return "User{" +
                 "id=" + id +
-                ", post_id=" + post_id +
                 ", name='" + name + '\'' +
                 ", email='" + email + '\'' +
-                ", body='" + body + '\'' +
+                ", gender='" + gender + '\'' +
+                ", status='" + status + '\'' +
                 '}';
     }
 }
+

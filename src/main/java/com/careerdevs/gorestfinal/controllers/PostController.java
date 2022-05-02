@@ -2,6 +2,7 @@ package com.careerdevs.gorestfinal.controllers;
 
 import com.careerdevs.gorestfinal.models.Post;
 import com.careerdevs.gorestfinal.repositories.PostRepository;
+import com.careerdevs.gorestfinal.repositories.UserRepository;
 import com.careerdevs.gorestfinal.utils.ApiErrorHandling;
 import com.careerdevs.gorestfinal.validation.PostValidation;
 import com.careerdevs.gorestfinal.validation.ValidationError;
@@ -35,11 +36,13 @@ import java.util.Optional;
     * */
 
 @RestController
-@RequestMapping("/posts")
+@RequestMapping("/api/posts")
 public class PostController {
 
     @Autowired
     PostRepository postRepository;
+    @Autowired
+    UserRepository userRepository;
 
     @GetMapping("/test")
     public String testRoute(){
@@ -56,7 +59,7 @@ public class PostController {
             if(ApiErrorHandling.isStrNan(id)){
                 throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, id +": is not a valid id");
             }
-            long uID = Integer.parseInt(id);
+            long uID = Long.parseLong(id);
 
             //instead of it returning null
             Optional<Post> foundPost = postRepository.findById(uID);
@@ -96,7 +99,7 @@ public class PostController {
             if(ApiErrorHandling.isStrNan(postId)){ // checks if string is a number and if its null . if its not a number or null it will return true and throw exception.
                 throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, postId + ": is not valid");
             }
-            long uID = Integer.parseInt(postId);
+            long uID = Long.parseLong(postId);
             Optional<Post> deletePost = postRepository.findById(uID);
 
             if (deletePost.isEmpty()){
@@ -139,7 +142,7 @@ public class PostController {
 
             }
 
-            long uID = Integer.parseInt(postId);
+            long uID = Long.parseLong(postId);
 
             String url = "https://gorest.co.in/public/v2/posts/" + uID;
             Post foundPost = restTemplate.getForObject(url, Post.class);
@@ -147,7 +150,7 @@ public class PostController {
             System.out.println(foundPost);
 
             if (foundPost == null) {
-                throw new HttpClientErrorException(HttpStatus.NOT_FOUND, "user data was null");
+                throw new HttpClientErrorException(HttpStatus.NOT_FOUND, " post data was null");
 
             }
             // update post / SAVE POST
@@ -180,8 +183,8 @@ public class PostController {
 
             ArrayList<Post> allPosts = new ArrayList<>(Arrays.asList(firstPagePost));
 
-            HttpHeaders resposeHeader = response.getHeaders();
-            String totalPages = Objects.requireNonNull(resposeHeader.get("X-Pagination-Pages").get(0));
+            HttpHeaders responseHeader = response.getHeaders();
+            String totalPages = Objects.requireNonNull(responseHeader.get("X-Pagination-Pages").get(0));
 
             int totalPgNum =Integer.parseInt(totalPages);
 
@@ -208,7 +211,7 @@ public class PostController {
     @PostMapping("//")
     public ResponseEntity<?> createPost(@RequestBody Post newPost){
         try{
-            ValidationError errors = PostValidation.validatePost(newPost, postRepository, false);
+            ValidationError errors = PostValidation.validatePost(newPost, postRepository, userRepository,false);
             if(errors.hasError()){
                 throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, errors.toJsonString());
             }
@@ -225,7 +228,7 @@ public class PostController {
     @PutMapping("/")
     public ResponseEntity<?> updatingPost(@RequestBody Post updatePost){
         try{
-            ValidationError newPostErrors = PostValidation.validatePost(updatePost,postRepository,true );
+            ValidationError newPostErrors = PostValidation.validatePost(updatePost,postRepository, userRepository,true );
             if(newPostErrors.hasError()){
                 throw  new HttpClientErrorException(HttpStatus.BAD_REQUEST, newPostErrors.toString());
 
