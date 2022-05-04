@@ -1,6 +1,7 @@
 package com.careerdevs.gorestfinal.controllers;
 
 import com.careerdevs.gorestfinal.models.Post;
+import com.careerdevs.gorestfinal.models.User;
 import com.careerdevs.gorestfinal.repositories.PostRepository;
 import com.careerdevs.gorestfinal.repositories.UserRepository;
 import com.careerdevs.gorestfinal.utils.ApiErrorHandling;
@@ -14,10 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 
   /*
@@ -146,6 +144,9 @@ public class PostController {
 
             String url = "https://gorest.co.in/public/v2/posts/" + uID;
             Post foundPost = restTemplate.getForObject(url, Post.class);
+
+
+
             System.out.println("found post");
             System.out.println(foundPost);
 
@@ -153,6 +154,18 @@ public class PostController {
                 throw new HttpClientErrorException(HttpStatus.NOT_FOUND, " post data was null");
 
             }
+            //assign existing user_id; after checking post is not null but before saving it.
+
+
+            Iterable<User> allUsers = userRepository.findAll();
+            List<User> result = new ArrayList<User>();
+            allUsers.forEach(result::add);
+            // now that you have a list get the length and select a random number
+            // then get the user_id from that number.
+            long randomId= result.get((int) (result.size() * Math.random())).getId();
+
+            foundPost.setUser_id(randomId);
+
             // update post / SAVE POST
             Post savePost = postRepository.save(foundPost);
 
@@ -191,13 +204,32 @@ public class PostController {
 
             int totalPgNum =Integer.parseInt(totalPages);
 
+
+
+
+
             for( int i = 2; i<= totalPgNum; i++) {
                 String tempUrl = url + "?=page=" + i;
                 Post[] pagePost = restTemplate.getForObject(tempUrl, Post[].class);
                 if (pagePost == null) {
                     throw new HttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to get page " + i + "of posts");
                 }
+
+
                 allPosts.addAll(Arrays.asList(pagePost));
+            }
+            // All users will be put in an array --- get all users to pick an id randomly
+            Iterable<User> allUsers = userRepository.findAll();
+            List<User> result = new ArrayList<User>();
+            allUsers.forEach(result::add);
+
+            for(int j=0; j< allPosts.size(); j++){
+
+                // now that you have a list get the length and select a random number
+                // then get the user_id from that number.
+                long randomId= result.get((int) (result.size() * Math.random())).getId();
+
+                allPosts.get(j).setUser_id(randomId);
             }
 
             postRepository.saveAll(allPosts);
