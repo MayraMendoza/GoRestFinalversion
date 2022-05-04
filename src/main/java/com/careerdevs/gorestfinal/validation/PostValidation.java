@@ -34,10 +34,12 @@ public class PostValidation {
         if(postBody == null || postBody.trim().equals("")){
             errors.addError("body", "body can not be left blank");
         }
-        if( postUserId == 0){
+        if( postUserId == 0 ) {
             errors.addError("user_Id ", "user_Id can not be left blank");
+        }else{
 
-            // is this postUserId connected to an existing user.
+            // is this postUserId connected to an existing user
+            //import user from models
             Optional<User> foundUser = userRepository.findById(postUserId);
             if (foundUser.isEmpty()){
                 errors.addError("user_id", "user_Id is invalid because there is no user found with the id:" + postUserId);

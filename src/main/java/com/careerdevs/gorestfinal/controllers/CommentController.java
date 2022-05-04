@@ -173,7 +173,7 @@ public class CommentController {
                     throw new HttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to get page" + i+ "of comments");
 
                 }
-                allComments.addAll(Arrays.asList(firstPageComments));
+                allComments.addAll(Arrays.asList(pageComment));
 
             }
             commentRepository.saveAll(allComments);

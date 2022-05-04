@@ -158,6 +158,9 @@ public class PostController {
 
             return new ResponseEntity<>(savePost, HttpStatus.CREATED);
 
+        }catch(HttpClientErrorException e){
+            return ApiErrorHandling.customApiError(e.getMessage(), e.getStatusCode());
+
         }catch (Exception e){
             return ApiErrorHandling.genericApiError(e);
 
@@ -194,7 +197,7 @@ public class PostController {
                 if (pagePost == null) {
                     throw new HttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to get page " + i + "of posts");
                 }
-                allPosts.addAll(Arrays.asList(firstPagePost));
+                allPosts.addAll(Arrays.asList(pagePost));
             }
 
             postRepository.saveAll(allPosts);

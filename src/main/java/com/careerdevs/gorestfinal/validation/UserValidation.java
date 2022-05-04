@@ -24,7 +24,7 @@ public class UserValidation {
         String userName = user.getName();
         String userEmail = user.getEmail();
         String userGender = user.getGender();
-        String userStatus = user.getGender();
+        String userStatus = user.getStatus();
 
 
         if(userName == null || userName.trim().equals("")){
@@ -43,11 +43,11 @@ public class UserValidation {
 
         if (userStatus == null || userStatus.trim().equals("")) {
             errors.addError("status", "Status can nor be left blank ");
+
+        }else if(!(userStatus.equals("active") || userStatus.equals("inactive"))){
+            // this is not working ???/
+            errors.addError("status", "status must be active or inactive");
         }
-//        }else if(!(userStatus.equals("active") || userStatus.equals("inactive"))){
-//            // this is not working ???/
-//            errors.addError("status", "status must be active or inactive");
-//        }
         return errors;
     }
 }

@@ -208,7 +208,7 @@ public class TodoController {
 
 
                 }
-                allTodo.addAll(Arrays.asList(firstPageTodo));
+                allTodo.addAll(Arrays.asList(pageTodo));
             }
             todoRepository.saveAll(allTodo);
             return new ResponseEntity<>("todos added" + allTodo.size(), HttpStatus.OK);

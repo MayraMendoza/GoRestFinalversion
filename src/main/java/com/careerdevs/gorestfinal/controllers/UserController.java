@@ -177,7 +177,7 @@ public class UserController {
                 if (pagePost == null) {
                     throw new HttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to get page " + i + "of posts");
                 }
-                allUser.addAll(Arrays.asList(firstPageUsers));
+                allUser.addAll(Arrays.asList(pagePost));
             }
 
             userRepository.saveAll(allUser);
