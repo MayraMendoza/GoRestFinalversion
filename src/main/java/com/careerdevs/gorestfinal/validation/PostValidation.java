@@ -18,7 +18,7 @@ public class PostValidation {
             }else {
                 Optional<Post> foundUser = postRepo.findById(post.getId());
                 if (foundUser.isEmpty()){
-                    errors.addError("id", "No user found with the ID" + post.getId());
+                    errors.addError("id", "No user found with the ID: "  + post.getId());
 
                 }
             }

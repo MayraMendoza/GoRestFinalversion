@@ -45,8 +45,8 @@ public class UserValidation {
             errors.addError("status", "Status can nor be left blank ");
 
         }else if(!(userStatus.equals("active") || userStatus.equals("inactive"))){
-            // this is not working ???/
-            errors.addError("status", "status must be active or inactive");
+
+            errors.addError("status", "status must----test be active or inactive");
         }
         return errors;
     }

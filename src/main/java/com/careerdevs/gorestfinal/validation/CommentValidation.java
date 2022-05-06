@@ -16,7 +16,7 @@ public class CommentValidation {
             }else {
                 Optional<Comment> foundUser = commentRepo.findById(comment.getId());
                 if(foundUser.isEmpty()){
-                    errors.addError("id", "No comment found with the id" + comment.getId());
+                    errors.addError("id", "No comment found with the id: " + comment.getId());
 
                 }
             }

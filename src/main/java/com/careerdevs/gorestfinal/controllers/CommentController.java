@@ -2,7 +2,9 @@ package com.careerdevs.gorestfinal.controllers;
 
 
 import com.careerdevs.gorestfinal.models.Comment;
+import com.careerdevs.gorestfinal.models.Post;
 import com.careerdevs.gorestfinal.repositories.CommentRepository;
+import com.careerdevs.gorestfinal.repositories.PostRepository;
 import com.careerdevs.gorestfinal.utils.ApiErrorHandling;
 import com.careerdevs.gorestfinal.validation.CommentValidation;
 import com.careerdevs.gorestfinal.validation.ValidationError;
@@ -14,10 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 /*
     Required Routes for GoRestSQL Final: complete for each resource; User, Post, Comment, Todo,
@@ -34,11 +33,14 @@ import java.util.Optional;
          *PUT route that updates a [resource] on JUST the SQL database (returns the updated SQL [resource] data)
   * */
 @RestController
-@RequestMapping("/comments")
+@RequestMapping("/api/comments")
 public class CommentController {
 
     @Autowired
     CommentRepository commentRepository;
+
+    @Autowired
+    PostRepository postRepository;
 
     // * * GET route that returns one [resource] by ID from the SQL database
     @GetMapping("/{id}")
@@ -126,7 +128,7 @@ public class CommentController {
 
 
             }
-            int cId = Integer.parseInt(commentId);
+            long cId = Long.parseLong(commentId);
             String url = "https://gorest.co.in/public/v2/comments/" + cId;
             Comment foundComment = restTemplate.getForObject(url, Comment.class);
             System.out.println("found comment");
@@ -135,6 +137,14 @@ public class CommentController {
             if (foundComment == null){
                 throw  new HttpClientErrorException(HttpStatus.NOT_FOUND, " data is null");
             }
+
+            Iterable<Post> allPosts = postRepository.findAll();
+            List<Post> result = new ArrayList<Post>();
+            allPosts.forEach(result:: add);
+
+            long randomPostId = result.get((int)(result.size() * Math.random())).getId();
+            foundComment.setPost_id(randomPostId);
+
             Comment savedComment = commentRepository.save(foundComment);
             return new ResponseEntity<>(savedComment, HttpStatus.CREATED);
         }catch (HttpClientErrorException e){
@@ -176,6 +186,17 @@ public class CommentController {
                 allComments.addAll(Arrays.asList(pageComment));
 
             }
+
+            Iterable<Post> allPosts = postRepository.findAll();
+            List<Post> result = new ArrayList<Post>();
+            allPosts.forEach(result:: add);
+
+            for(int j=0; j<allComments.size(); j++){
+                long randomPostId = result.get((int)(result.size() * Math.random())).getId();
+                allComments.get(j).setPost_id(randomPostId);
+            }
+
+
             commentRepository.saveAll(allComments);
             return new ResponseEntity("Comments added" + allComments.size(), HttpStatus.OK);
 
@@ -193,7 +214,7 @@ public class CommentController {
     @PostMapping("/addNew")
     public ResponseEntity<?> createNewComment(@RequestBody  Comment newComment){
         try {
-            ValidationError error = CommentValidation.validateComment(newComment, commentRepository , false);
+            ValidationError error = CommentValidation.validateComment(newComment, commentRepository , postRepository,  false);
             if(error.hasError()){
                 throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, error.toJsonString());
 
@@ -212,7 +233,7 @@ public class CommentController {
     @PutMapping("/")
     public ResponseEntity<?> updatingComment(@RequestBody Comment updateComment){
         try{
-            ValidationError newCommentErrors = CommentValidation.validateComment(updateComment, commentRepository, true);
+            ValidationError newCommentErrors = CommentValidation.validateComment(updateComment, commentRepository, postRepository, true);
             if(newCommentErrors.hasError()){
                 throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, newCommentErrors.toString());
 

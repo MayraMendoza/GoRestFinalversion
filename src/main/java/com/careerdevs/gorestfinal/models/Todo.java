@@ -10,8 +10,9 @@ import javax.persistence.*;
 public class Todo {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-
     private long id;
+
+
     private long user_id;
     private String title;
     private String due_on;
@@ -23,6 +24,10 @@ public class Todo {
 
     public long getUser_id() {
         return user_id;
+    }
+
+    public void setUser_id(long user_id) {
+        this.user_id = user_id;
     }
 
     public String getTitle() {

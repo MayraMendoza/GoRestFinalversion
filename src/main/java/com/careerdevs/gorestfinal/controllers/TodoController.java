@@ -20,7 +20,9 @@ package com.careerdevs.gorestfinal.controllers;
 
 
 import com.careerdevs.gorestfinal.models.Todo;
+import com.careerdevs.gorestfinal.models.User;
 import com.careerdevs.gorestfinal.repositories.TodoRepository;
+import com.careerdevs.gorestfinal.repositories.UserRepository;
 import com.careerdevs.gorestfinal.utils.ApiErrorHandling;
 import com.careerdevs.gorestfinal.validation.TodoValidation;
 import com.careerdevs.gorestfinal.validation.ValidationError;
@@ -32,16 +34,15 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
-@RequestMapping("/todos")
+@RequestMapping("/api/todos")
 public class TodoController {
     @Autowired
     TodoRepository todoRepository;
+    @Autowired
+    UserRepository userRepository;
 
     @GetMapping("/test")
     public String testRoute() {
@@ -123,9 +124,9 @@ public class TodoController {
 
     //*POST route that create a [resource] on JUST the SQL database (returns the newly created SQL [resource] data)
     @PostMapping("/postNew")
-    public ResponseEntity<?> addNewTodo(@RequestBody Todo newTodo){
+    public ResponseEntity<?> addNewTodo(@RequestBody() Todo newTodo){
         try {
-            ValidationError error = TodoValidation.validateTodo(newTodo, todoRepository,false);
+            ValidationError error = TodoValidation.validateTodo(newTodo, todoRepository, userRepository,false);
             if(error.hasError()){
                 throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, error.toJsonString());
             }
@@ -166,6 +167,17 @@ public class TodoController {
                 throw new HttpClientErrorException(HttpStatus.NOT_FOUND, " Todo data was null");
             }
 
+            // for each - add each user in an array.
+            Iterable<User> allUsers = userRepository.findAll();
+            List<User> result = new ArrayList<User>();
+            allUsers.forEach(result::add);
+
+            // pick a random number from array, get number then get user id from that number
+            long randomId = result.get((int) (result.size() * Math.random())).getId();
+
+            // assign that random user id to the user id belonging to that comment.
+            foundTodo.setUser_id(randomId);
+
             // save into todoRepo
             Todo saveTodo = todoRepository.save(foundTodo);
             // if no errors return new ResponseEntity / save todoin sql database and report a created status to user.
@@ -180,7 +192,7 @@ public class TodoController {
 
     //*POST route that uploads all [resource]s from the GoREST API into the SQL database (returns how many
     //           [resource]s were uploaded)
-    @PostMapping("/addAll")
+    @PostMapping("/add/all")
     public ResponseEntity<?> addAllFromGorest(RestTemplate restTemplate){
         try {
             String url = "https://gorest.co.in/public/v2/todos";
@@ -210,6 +222,16 @@ public class TodoController {
                 }
                 allTodo.addAll(Arrays.asList(pageTodo));
             }
+
+            Iterable<User> allUser = userRepository.findAll();
+            List<User> result = new ArrayList<>();
+            allUser.forEach(result::add);
+
+            for (int j=0; j< allTodo.size(); j++){
+                long radomId = result.get((int) (result.size() * Math.random())).getId();
+                allTodo.get(j).setUser_id(radomId);
+            }
+
             todoRepository.saveAll(allTodo);
             return new ResponseEntity<>("todos added" + allTodo.size(), HttpStatus.OK);
 
@@ -226,7 +248,7 @@ public class TodoController {
     @PutMapping("/")
     public ResponseEntity<?> updatingTodos(@RequestBody Todo updateTodo){
         try{
-            ValidationError newTodoErrors = TodoValidation.validateTodo(updateTodo, todoRepository, true);
+            ValidationError newTodoErrors = TodoValidation.validateTodo(updateTodo, todoRepository, userRepository , true);
             if(newTodoErrors.hasError()){
                 throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, newTodoErrors.toString());
 
